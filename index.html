@@ -4,9 +4,38 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>To-do list</title>
+    <link rel="stylesheet" href="./assets/style/style.css">
+    <meta name="description" content="keep your life in the right order">
+    <meta name="Keywords" content="to-do list, list">  
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 </head>
 <body>
-    
+    <div class="todo">
+        <p class="todo__logo">todos</p>
+        <div class="todo-container">
+            <input class="todos" type="text" placeholder="what needs to be done?">
+            <footer class="footer">
+                <div class="footer__item-left">0 items left</div>
+                <ul class="footer__list">
+                    <li class="footer__item">
+                        <button class="footer__btn">All</button>
+                    </li>
+                    <li class="footer__item">
+                        <button class="footer__btn">Active</button>
+                    </li>
+                    <li class="footer__item">
+                        <button class="footer__btn">Completed</button>
+                    </li>
+                    <li class="footer__item">
+                        <button class="footer__clear">Clear completed</button>
+                    </li>
+                </ul>
+            </footer>
+        </div>
+    </div>
+
+    <script src="./script.js"></script>
 </body>
 </html>
