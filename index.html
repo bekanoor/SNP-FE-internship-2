@@ -7,35 +7,39 @@
     <title>To-do list</title>
     <link rel="stylesheet" href="./assets/style/style.css">
     <meta name="description" content="keep your life in the right order">
+    <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
     <meta name="Keywords" content="to-do list, list">  
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta2/css/all.min.css" integrity="sha512-YWzhKL2whUzgiheMoBFwW8CKV4qpHQAEuvilg9FAn5VJUDwKZZxkJNuGM4XkWuk94WCrrwslk8yWNGmY1EduTA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 </head>
 <body>
     <div class="todo">
         <p class="todo__logo">todos</p>
         <div class="todo-container">
-            <input class="todos" type="text" placeholder="what needs to be done?">
+            <div class="todo__wrapper">
+                <span class="todo__arrow"></span>
+                <input class="todos" type="text" placeholder="what needs to be done?">
+            </div>
+            <ul class="todo__list"></ul>
             <footer class="footer">
-                <div class="footer__item-left">0 items left</div>
+                <div class="footer__item-left"></div>
                 <ul class="footer__list">
                     <li class="footer__item">
-                        <button class="footer__btn">All</button>
+                        <button value="all" class="footer__btn">All</button>
                     </li>
                     <li class="footer__item">
-                        <button class="footer__btn">Active</button>
+                        <button value="active" class="footer__btn">Active</button>
                     </li>
                     <li class="footer__item">
-                        <button class="footer__btn">Completed</button>
+                        <button value="completes" class="footer__btn">Completed</button>
                     </li>
                     <li class="footer__item">
-                        <button class="footer__clear">Clear completed</button>
+                        <button value="clear" class="footer__btn">Clear</button>
                     </li>
                 </ul>
             </footer>
         </div>
-    </div>
-
+    </div>  
     <script src="./script.js"></script>
 </body>
 </html>
