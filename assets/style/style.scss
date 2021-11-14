@@ -5,16 +5,28 @@ body {
     font-family: 'Roboto', sans-serif;
     font-size: 16px;
     background-color: #fbf8f8;
+
+    @media (max-width: 425px) {
+        font-size: 14px;
+    }
 }   
 
 .todo {
     width: 500px;
     margin: 0 auto;
 
+    @media (max-width: 425px) {
+        width: 350px;
+    }
+
     &__logo {
         margin: 100px 0 50px;
         font-size: 100px;
         text-align: center;
+
+        @media (max-width: 425px) {
+            margin: 45px 0 20px;
+        }
     }
 
     &__arrow {
@@ -46,6 +58,11 @@ body {
         width: 430px;
         padding-left: 20px;
         font-size: 32px;
+
+        @media (max-width: 425px) {
+            width: 250px;
+            font-size: 18px;
+        }
     }
 
     &__cross-out {
@@ -86,6 +103,11 @@ body {
     height: 65px;
     padding: 10px 10px 10px 65px;
     font-size: 36px;
+
+    @media (max-width: 425px) {
+        width: 350px;
+        font-size: 18px;
+    }
 }
 .footer {
     display: none;
@@ -93,6 +115,11 @@ body {
     
     &__item-left {
         margin-top: 20px;
+
+        @media (max-width: 425px) {
+            margin-top: 15px;
+            text-align: center;
+        }
     }
 
     &__list {
@@ -112,6 +139,10 @@ body {
 
         &:hover {   
             background-color: rgba(7, 128, 7, .2);
+        }
+
+        @media (max-width: 425px) {
+            padding: 5px;
         }
     }
 

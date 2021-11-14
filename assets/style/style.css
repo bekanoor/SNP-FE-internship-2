@@ -79,15 +79,33 @@ body {
   background-color: #fbf8f8;
 }
 
+@media (max-width: 425px) {
+  body {
+    font-size: 14px;
+  }
+}
+
 .todo {
   width: 500px;
   margin: 0 auto;
+}
+
+@media (max-width: 425px) {
+  .todo {
+    width: 350px;
+  }
 }
 
 .todo__logo {
   margin: 100px 0 50px;
   font-size: 100px;
   text-align: center;
+}
+
+@media (max-width: 425px) {
+  .todo__logo {
+    margin: 45px 0 20px;
+  }
 }
 
 .todo__arrow {
@@ -119,6 +137,13 @@ body {
   width: 430px;
   padding-left: 20px;
   font-size: 32px;
+}
+
+@media (max-width: 425px) {
+  .todo__itemText {
+    width: 250px;
+    font-size: 18px;
+  }
 }
 
 .todo__cross-out {
@@ -161,6 +186,13 @@ body {
   font-size: 36px;
 }
 
+@media (max-width: 425px) {
+  .todos {
+    width: 350px;
+    font-size: 18px;
+  }
+}
+
 .footer {
   display: none;
   justify-content: space-around;
@@ -168,6 +200,13 @@ body {
 
 .footer__item-left {
   margin-top: 20px;
+}
+
+@media (max-width: 425px) {
+  .footer__item-left {
+    margin-top: 15px;
+    text-align: center;
+  }
 }
 
 .footer__list {
@@ -188,6 +227,12 @@ body {
 
 .footer__btn:hover {
   background-color: rgba(7, 128, 7, 0.2);
+}
+
+@media (max-width: 425px) {
+  .footer__btn {
+    padding: 5px;
+  }
 }
 
 .footer .active {

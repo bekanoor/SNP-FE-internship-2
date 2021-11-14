@@ -43,7 +43,7 @@ function createElement(item, completed, toLocal) {
         // update leftover items
         itemText.classList.contains('todo__cross-out') ? '' : showItemsLeft('');
 
-        deleteTodoItemFromLocalStorage(item);
+        deleteTodoItemFromLocalStorage(liItem.id);
         liItem.remove();
         
         // hide footer if todo array is empty 
@@ -54,7 +54,7 @@ function createElement(item, completed, toLocal) {
 
     //make cross out/regular text
     completeButton.addEventListener('click', ()=> {
-        changeCompleteValue(itemText.textContent);
+        changeCompleteValue(liItem.id);
 
         if(itemText.classList.contains('todo__cross-out')) {
             itemText.classList.remove('todo__cross-out');
@@ -140,7 +140,7 @@ function toggleArrow() {
         for(let elem of countToDo) {
             showItemsLeft('plus')
             elem.classList.remove('todo__cross-out');
-            changeCompleteValue(elem.textContent);
+            changeCompleteValue(elem.parentNode.id);
         }
 
         localStorage.setItem('arrowStatus', JSON.stringify(false));
@@ -151,7 +151,7 @@ function toggleArrow() {
                 showItemsLeft('plus');
             } 
             elem.classList.add('todo__cross-out');
-            changeCompleteValue(elem.textContent);
+            changeCompleteValue(elem.parentNode.id);
             showItemsLeft('');
         }
 
@@ -162,6 +162,7 @@ function toggleArrow() {
 
 // manage footer 
 function manageFooterComponents(e) {
+    console.log(e.target)
     // create for each todo list item a function to control display property 
     todoList.childNodes.forEach(element => {
         switch (e.target.value) {
@@ -185,7 +186,7 @@ function manageFooterComponents(e) {
             case 'clear': 
                 const clear = document.querySelectorAll('.todo__cross-out');
                 for (let elem of clear) {
-                    deleteTodoItemFromLocalStorage(elem.textContent);
+                    deleteTodoItemFromLocalStorage(elem.parentNode.id);
                     elem.parentNode.remove();
                 }
                 
@@ -205,10 +206,11 @@ function manageFooterComponents(e) {
 
 // set green background for footer buttons 
 function toggleFooterButton() {
-    let buttons = document.querySelectorAll(".footer__btn");
+    const buttons = document.querySelectorAll(".footer__btn");
 
     for (let btn of buttons) {
         btn.addEventListener('click', (e) => {
+        console.log('clck');
             // et = event target
             const et = e.target;
             // slect active class
@@ -229,6 +231,7 @@ function toggleFooterButton() {
 function saveToLocalStorage(item) {
     let todoArray;
     let obj = {
+        id: Date.now(),
         text: item, 
         completed: false
     };
@@ -240,13 +243,18 @@ function saveToLocalStorage(item) {
         // get array frm LS
         todoArray = JSON.parse(localStorage.getItem('todoArray'));
     }
-   
+
     // add item to LS
     todoArray.push(obj); 
     localStorage.setItem('todoArray', JSON.stringify(todoArray));
+
+    // add ID to li item
+    for(let i = 0; i < todoList.childNodes.length; i++) {
+        todoList.childNodes[i].setAttribute("id", todoArray[i].id);
+    }
 }
 
-function getTodoListFromLocalStorage(item) {
+function getTodoListFromLocalStorage() {
     let todoArray = JSON.parse(localStorage.getItem('todoArray'));
 
     if(todoArray.length > 0) {
@@ -259,35 +267,40 @@ function getTodoListFromLocalStorage(item) {
        createElement(item.text, item.completed);
        toggleFooterVisibility('flex', 'inline');
     })
+
+    // add ID to li from LS
+    for(let i = 0; i < todoList.childNodes.length; i++) {
+        todoList.childNodes[i].setAttribute("id", todoArray[i].id);
+    }
 }
 
 function deleteTodoItemFromLocalStorage(item) {
     let deleteFromLS = JSON.parse(localStorage.getItem('todoArray'));
-    let whatRemove = item;
+    let whatRemove = parseInt(item);
 
     for(let i = 0; i < deleteFromLS.length; i++) {
         // find index item to remove 
-        if (deleteFromLS[i].text === whatRemove) {
+        if (deleteFromLS[i].id === whatRemove) {
             deleteFromLS.splice(i, 1);
             localStorage.setItem('todoArray', JSON.stringify(deleteFromLS));
         }
     }
 }
 
-function changeCompleteValue(text) {
+function changeCompleteValue(id) {
     let completed = JSON.parse(localStorage.getItem('todoArray'));
 
     completed.forEach(item => {
-        if(item.text === text) {
+        if(item.id === parseInt(id)) {
             item.completed = !item.completed;
             localStorage.setItem('todoArray', JSON.stringify(completed))
         }
     })
 }
 //? EVENTS   
+document.addEventListener('DOMContentLoaded', getTodoListFromLocalStorage);
 arrow.addEventListener('click', toggleArrow);
 todos.addEventListener('keypress', showTodoItem);
 todos.addEventListener('blur', getBlur);
 footer.addEventListener('click', manageFooterComponents);
 footer.addEventListener('click', toggleFooterButton);
-document.addEventListener('DOMContentLoaded', getTodoListFromLocalStorage);
