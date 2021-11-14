@@ -1,18 +1,14 @@
 "use strict";
 
-//? DOM ELEMENTS AND VARIABLES 
+//? DOM ELEMENTS
 const todos = document.querySelector('.todos');
 const arrow = document.querySelector('.todo__arrow');
 const footer = document.querySelector('.footer');
 const todoList  = document.querySelector('.todo__list');
 const itemsLeft = document.querySelector('.footer__item-left');
-const footerItems = document.querySelector('.footer__list');
-// grab all the buttons
-
-let todosText = '';
 
 //? FUNCTIONS
-function createElement(item, status, toLocal) {
+function createElement(item, completed, toLocal) {
     // create  elements 
     // add li
     const liItem = document.createElement('li');
@@ -30,6 +26,7 @@ function createElement(item, status, toLocal) {
     completeButton.classList.add('complete');
     completeButton.innerHTML = '<i class="far fa-check-square fa-lg" style="color:green"></i>';
     liItem.append(completeButton);
+    
     const deleteButton = document.createElement('button');
     deleteButton.classList.add('delete');
     deleteButton.innerHTML = '<i class="far fa-times-circle fa-lg" style="color:red"></i>';
@@ -38,53 +35,70 @@ function createElement(item, status, toLocal) {
     // will be called only to save value in local storage 
     if(toLocal) saveToLocalStorage(toLocal);
     
-    // if status on local storage is true then mark text  
-    if(status) itemText.classList.add('todo__cross-out');
+    // if the task is completed marks the text 
+    if(completed) itemText.classList.add('todo__cross-out');
 
     // delete element
     deleteButton.addEventListener('click', ()=> {
-        
+        // update leftover items
         itemText.classList.contains('todo__cross-out') ? '' : showItemsLeft('');
-        deleteFromLocalStorage(item);
+
+        deleteTodoItemFromLocalStorage(item);
         liItem.remove();
         
-        // if todo list is empty then delete footer
+        // hide footer if todo array is empty 
         if(todoList.childNodes.length === 0) {
             toggleFooterVisibility('','');
         }
     });
 
-    //make cross out /regular text
+    //make cross out/regular text
     completeButton.addEventListener('click', ()=> {
-        changeStatus(itemText.textContent);
+        changeCompleteValue(itemText.textContent);
 
         if(itemText.classList.contains('todo__cross-out')) {
             itemText.classList.remove('todo__cross-out');
-
             showItemsLeft('plus');
         } else {
             itemText.classList.add('todo__cross-out');
 
             showItemsLeft('');
         }
+
+        let buttons = document.querySelectorAll(".footer__btn");
+
+        for (let btn of buttons) {
+            // search active button
+            if(btn.classList.contains('active')) {
+                // if "active" or "complete" button enable add additional functionality
+                //hide element after click if enable "active"
+                if(btn.value === 'active') {
+                    liItem.style.display = 'none';
+                }
+                //hide element after click if enable "complete" 
+                if(btn.value === 'completes') {
+                    liItem.style.display = 'none';
+                }
+            }
+        }
     })
 }
 
-function displayContent (e) {
+function showTodoItem (e) {
     if(e.type === 'keypress') {
         // Make sure enter is pressed and string is not empty 
-        if (e.which == 13 || e.keyCode == 13) {
-            if (todosText.length === 0) return
+        if (e.which === 13 || e.keyCode === 13) {
+            if (todos.value.length === 0) return
             
+
             if(todoList.childNodes.length >= 0) {
                 toggleFooterVisibility('flex', 'inline');
             }
 
             showItemsLeft('plus');
-            createElement(todosText, '', todosText);
-            
+            createElement(todos.value, '', todos.value);
+
             todos.value = '';
-            todosText = '';
         }
     }
 }
@@ -98,28 +112,26 @@ function showItemsLeft(operation) {
     itemsLeft.textContent = `${JSON.parse(localStorage.getItem('count'))} items left`;
 }
 
-// show footer 
+// show/hide footer 
 function toggleFooterVisibility(flex, inline) {
     footer.style.display = flex;
     arrow.style.display = inline;
 }
 
 function getBlur () {
-    if(todosText.length === 0 ) return 
+    if(todos.value.length === 0 ) return 
    
-    createElement(todosText, '', todosText);
+    createElement(todos.value, '', todos.value);
     toggleFooterVisibility('flex', 'inline');
     showItemsLeft('plus');
 
     todos.value = '';
-    todosText = '';
-
 }
 
-// turn off/on cross out text 
+// turn off/on cross out all text 
 function toggleArrow() {
     let countToDo = document.querySelectorAll('.todo__itemText');
-    let arrowActive = JSON.parse(localStorage.getItem('status'));
+    let arrowActive = JSON.parse(localStorage.getItem('arrowStatus'));
 
     // check active or not
     if(arrowActive) {
@@ -128,10 +140,10 @@ function toggleArrow() {
         for(let elem of countToDo) {
             showItemsLeft('plus')
             elem.classList.remove('todo__cross-out');
-            changeStatus(elem.textContent);
+            changeCompleteValue(elem.textContent);
         }
 
-        localStorage.setItem('status', JSON.stringify(false));
+        localStorage.setItem('arrowStatus', JSON.stringify(false));
     } else {
         // for each text item make cross out text
         for(let elem of countToDo) {
@@ -139,11 +151,11 @@ function toggleArrow() {
                 showItemsLeft('plus');
             } 
             elem.classList.add('todo__cross-out');
-            changeStatus(elem.textContent);
+            changeCompleteValue(elem.textContent);
             showItemsLeft('');
         }
 
-        localStorage.setItem('status', JSON.stringify(true))
+        localStorage.setItem('arrowStatus', JSON.stringify(true))
     }
 
 }
@@ -173,12 +185,12 @@ function manageFooterComponents(e) {
             case 'clear': 
                 const clear = document.querySelectorAll('.todo__cross-out');
                 for (let elem of clear) {
-                    deleteFromLocalStorage(elem.textContent);
+                    deleteTodoItemFromLocalStorage(elem.textContent);
                     elem.parentNode.remove();
                 }
                 
                 // turn off arrow 
-                localStorage.setItem('status', false);
+                localStorage.setItem('arrowStatus', false);
 
                 // hide footer 
                 if(todoList.childNodes.length === 0) {
@@ -189,9 +201,9 @@ function manageFooterComponents(e) {
                 break;
         }
     })
-
 }
 
+// set green background for footer buttons 
 function toggleFooterButton() {
     let buttons = document.querySelectorAll(".footer__btn");
 
@@ -201,10 +213,12 @@ function toggleFooterButton() {
             const et = e.target;
             // slect active class
             const active = document.querySelector('.active');
+
             // check for the button that has active class and remove it
             if (active) {
             active.classList.remove('active');
             }
+
             // add active class to the clicked element 
             et.classList.add('active');
         });
@@ -216,38 +230,43 @@ function saveToLocalStorage(item) {
     let todoArray;
     let obj = {
         text: item, 
-        status: false
-    }
+        completed: false
+    };
+
     if(localStorage.getItem('todoArray') === null) {
         // create array if it's not exist 
         todoArray = [];
-    } 
-    else {
+    } else {
+        // get array frm LS
         todoArray = JSON.parse(localStorage.getItem('todoArray'));
     }
    
+    // add item to LS
     todoArray.push(obj); 
     localStorage.setItem('todoArray', JSON.stringify(todoArray));
 }
 
-function getFromLocalStorage(item) {
+function getTodoListFromLocalStorage(item) {
     let todoArray = JSON.parse(localStorage.getItem('todoArray'));
 
     if(todoArray.length > 0) {
+        // update how many items are left
         itemsLeft.textContent = `${JSON.parse(localStorage.getItem('count'))} items left`;
     } 
     
+    // add items to the screen 
     todoArray.forEach(item => {
-       createElement(item.text, item.status);
+       createElement(item.text, item.completed);
        toggleFooterVisibility('flex', 'inline');
     })
 }
 
-function deleteFromLocalStorage(item) {
+function deleteTodoItemFromLocalStorage(item) {
     let deleteFromLS = JSON.parse(localStorage.getItem('todoArray'));
     let whatRemove = item;
 
     for(let i = 0; i < deleteFromLS.length; i++) {
+        // find index item to remove 
         if (deleteFromLS[i].text === whatRemove) {
             deleteFromLS.splice(i, 1);
             localStorage.setItem('todoArray', JSON.stringify(deleteFromLS));
@@ -255,23 +274,20 @@ function deleteFromLocalStorage(item) {
     }
 }
 
-function changeStatus(text) {
-    let status = JSON.parse(localStorage.getItem('todoArray'));
+function changeCompleteValue(text) {
+    let completed = JSON.parse(localStorage.getItem('todoArray'));
 
-    status.forEach(item => {
+    completed.forEach(item => {
         if(item.text === text) {
-            item.status = !item.status;
-            localStorage.setItem('todoArray', JSON.stringify(status))
+            item.completed = !item.completed;
+            localStorage.setItem('todoArray', JSON.stringify(completed))
         }
     })
 }
 //? EVENTS   
-todos.oninput = function () {
-    todosText = todos.value;
-}
 arrow.addEventListener('click', toggleArrow);
-todos.addEventListener('keypress', displayContent);
+todos.addEventListener('keypress', showTodoItem);
 todos.addEventListener('blur', getBlur);
-footerItems.addEventListener('click', manageFooterComponents);
-footerItems.addEventListener('click', toggleFooterButton);
-document.addEventListener('DOMContentLoaded', getFromLocalStorage);
+footer.addEventListener('click', manageFooterComponents);
+footer.addEventListener('click', toggleFooterButton);
+document.addEventListener('DOMContentLoaded', getTodoListFromLocalStorage);
