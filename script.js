@@ -11,7 +11,6 @@ const activeStatus = document.querySelector('.actives');
 
 //? FUNCTIONS
 function createElement(item, completed, toLocal) {
-    // create  elements 
     // add li
     const liItem = document.createElement('li');
     liItem.classList.add('todo__item'); 
@@ -19,6 +18,7 @@ function createElement(item, completed, toLocal) {
 
     // add text container
     const itemText = document.createElement('label');
+
     // itemText.setAttribute('contenteditable', true);
     itemText.classList.add('todo__itemText');
     itemText.textContent = item;
@@ -51,10 +51,9 @@ function createElement(item, completed, toLocal) {
         const todos = getValueFromLS();
         let nodeId = parseInt(e.target.parentNode.id);
         
-        for(let elem of todos) {
+        for (let elem of todos) {
             if(elem.id === nodeId) {
                 elem.text = itemText.textContent;
-                console.log(todos);
             };
         }
 
@@ -68,10 +67,9 @@ function createElement(item, completed, toLocal) {
             const todos = getValueFromLS();
             let nodeId = parseInt(e.target.parentNode.id);
             
-            for(let elem of todos) {
+            for (let elem of todos) {
                 if(elem.id === nodeId) {
                     elem.text = itemText.textContent;
-                    console.log(todos);
                 };
             }
 
@@ -100,7 +98,7 @@ function createElement(item, completed, toLocal) {
 
     //make cross out/regular text
     completeButton.addEventListener('click', ()=> {
-        changeCompleteValue(liItem.id);
+        changeCompletePropertyInLS(liItem.id);
 
         if(itemText.classList.contains('todo__cross-out')) {
             itemText.classList.remove('todo__cross-out');
@@ -184,16 +182,16 @@ function getBlur () {
 
 // turn off/on cross out all text 
 function toggleArrow() {
-    let countToDo = document.querySelectorAll('.todo__itemText');
-    let arrowActive = getValueFromLS('arrowStatus');
+    const countToDo = document.querySelectorAll('.todo__itemText');
+    const arrowActive = getValueFromLS('arrowStatus');
 
     // check active or not
     if(arrowActive) {
         // for each text item make regular text
-        for(let elem of countToDo) {
+        for (let elem of countToDo) {
             showItemsLeft('plus')
             elem.classList.remove('todo__cross-out');
-            changeCompleteValue(elem.parentNode.id);
+            changeCompletePropertyInLS(elem.parentNode.id);
 
             // show/hide items when active complete/active navigation buttons  
             if(completeStatus.classList.contains('active')) elem.parentNode.style.display = 'none';
@@ -204,11 +202,11 @@ function toggleArrow() {
         updateLS(false, 'arrowStatus');
     } else {
         // for each text item make cross out text
-        for(let elem of countToDo) {
+        for (let elem of countToDo) {
             if(elem.classList.contains('todo__cross-out')) showItemsLeft('plus');
 
             elem.classList.add('todo__cross-out');
-            changeCompleteValue(elem.parentNode.id);
+            changeCompletePropertyInLS(elem.parentNode.id);
             
             showItemsLeft('');
 
@@ -256,9 +254,8 @@ function manageFooterComponents(e) {
                 updateLS(false, 'arrowStatus');
 
                 // hide navigation 
-                if(todoList.childNodes.length === 0) {
-                    toggleFooterVisibility('','');
-                }
+                if(todoList.childNodes.length === 0) toggleFooterVisibility('','');
+                
                 break;
             default:
                 break;
@@ -279,9 +276,7 @@ function toggleFooterButton() {
             const active = document.querySelector('.active');
 
             // check for the button that has active class and remove it
-            if (active) {
-            active.classList.remove('active');
-            }
+            if (active) active.classList.remove('active');
             
             // add active class to the clicked element 
             et.classList.add('active');
@@ -300,7 +295,7 @@ function getValueFromLS(key='todoArray') {
 
 function saveToLocalStorage(item) {
     let todoArray;
-    let obj = {
+    const obj = {
         id: Date.now(),
         text: item, 
         completed: false
@@ -318,10 +313,11 @@ function saveToLocalStorage(item) {
     todoArray.push(obj); 
     updateLS(todoArray);
 
-    // add ID to li item
-    for(let i = 0; i < todoList.childNodes.length; i++) {
+    // add ID to li items
+    for (let i = 0; i < todoList.childNodes.length; i++) {
         todoList.childNodes[i].setAttribute("id", todoArray[i].id);
     }
+    
 }
 
 function getTodoListFromLocalStorage() {
@@ -339,7 +335,7 @@ function getTodoListFromLocalStorage() {
     })
 
     // add ID to li from LS
-    for(let i = 0; i < todoList.childNodes.length; i++) {
+    for (let i = 0; i < todoList.childNodes.length; i++) {
         todoList.childNodes[i].setAttribute("id", todoArray[i].id);
     }
 }
@@ -348,17 +344,17 @@ function deleteTodoItemFromLocalStorage(item) {
     let deleteFromLS = getValueFromLS();
     let whatRemove = parseInt(item);
 
-    for(let i = 0; i < deleteFromLS.length; i++) {
-        // find index item to remove 
-        if (deleteFromLS[i].id === whatRemove) {
-            deleteFromLS.splice(i, 1);
+
+    for (let elem of deleteFromLS) {
+        if (elem.id === whatRemove) {
+            deleteFromLS.splice(elem, 1);
             updateLS(deleteFromLS);
         }
     }
 }
 
-function changeCompleteValue(id) {
-    let completed = getValueFromLS();
+function changeCompletePropertyInLS(id) {
+    const completed = getValueFromLS();
 
     completed.forEach(item => {
         if(item.id === parseInt(id)) {

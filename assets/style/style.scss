@@ -163,3 +163,20 @@ body {
         background-color: rgba(7, 128, 7, .2);
     }
 }
+
+.footer {
+   
+    &__text {
+        margin-top: 10px;
+        text-align: center;
+        color: rgb(54, 54, 54);
+    }
+
+    &__link {
+        color: rgb(54, 54, 54);
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}

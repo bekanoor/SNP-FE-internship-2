@@ -265,3 +265,17 @@ body {
 .navigation .active {
   background-color: rgba(7, 128, 7, 0.2);
 }
+
+.footer__text {
+  margin-top: 10px;
+  text-align: center;
+  color: #363636;
+}
+
+.footer__link {
+  color: #363636;
+}
+
+.footer__link:hover {
+  text-decoration: underline;
+}
