@@ -8,7 +8,8 @@
 }
 
 *, *:before, *:after {
-  box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
 }
 
 :focus, :active {
@@ -126,8 +127,12 @@ body {
 }
 
 .todo__item {
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  align-items: center;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
   border-top: 1px solid rgba(0, 0, 0, 0.2);
 }
 
@@ -150,6 +155,11 @@ body {
   text-decoration: line-through;
   color: #6e6b6b;
   opacity: 0.8;
+}
+
+.todo__active {
+  -webkit-box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
+          box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.5);
 }
 
 .complete {
@@ -176,7 +186,8 @@ body {
 }
 
 .todo-container {
-  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+  -webkit-box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+          box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
 }
 
 .todos {
@@ -193,48 +204,64 @@ body {
   }
 }
 
-.footer {
+.navigation {
   display: none;
-  justify-content: space-around;
+  -ms-flex-pack: distribute;
+      justify-content: space-around;
 }
 
-.footer__item-left {
+.navigation__item-left {
   margin-top: 20px;
 }
 
 @media (max-width: 425px) {
-  .footer__item-left {
+  .navigation__item-left {
     margin-top: 15px;
     text-align: center;
   }
 }
 
-.footer__list {
+.navigation__list {
   width: 350px;
+  display: -webkit-box;
+  display: -ms-flexbox;
   display: flex;
-  justify-content: space-between;
+  -webkit-box-pack: justify;
+      -ms-flex-pack: justify;
+          justify-content: space-between;
   margin-top: 10px;
 }
 
-.footer__item {
+.navigation__item {
   height: 50px;
 }
 
-.footer__btn {
+.navigation__btn {
   display: inline-block;
   padding: 10px;
 }
 
-.footer__btn:hover {
+.navigation__btn:hover {
   background-color: rgba(7, 128, 7, 0.2);
 }
 
 @media (max-width: 425px) {
-  .footer__btn {
+  .navigation__btn {
     padding: 5px;
   }
 }
 
-.footer .active {
+.navigation__clear {
+  display: inline-block;
+  padding: 10px;
+}
+
+@media (max-width: 425px) {
+  .navigation__clear {
+    padding: 5px;
+  }
+}
+
+.navigation .active {
   background-color: rgba(7, 128, 7, 0.2);
 }

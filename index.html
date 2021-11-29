@@ -14,31 +14,38 @@
 </head>
 <body>
     <div class="todo">
-        <p class="todo__logo">todos</p>
-        <div class="todo-container">
-            <div class="todo__wrapper">
-                <span class="todo__arrow"></span>
-                <input class="todos" type="text" autofocus placeholder="what needs to be done?">
+        <div class="todo__todo-wrapper">
+            <p class="todo__logo">todos</p>
+            <div class="todo-container">
+                <div class="todo__wrapper">
+                    <span class="todo__arrow"></span>
+                    <input class="todos" type="text" autofocus placeholder="what needs to be done?">
+                </div>
+                <ul class="todo__list"></ul>
+                <div class="navigation">
+                    <div class="navigation__item-left"></div>
+                    <ul class="navigation__list">
+                        <li class="navigation__item">
+                            <button value="all" class="navigation__btn active">All</button>
+                        </li>
+                        <li class="navigation__item">
+                            <button value="active" class="navigation__btn actives">Active</button>
+                        </li>
+                        <li class="navigation__item">
+                            <button value="completes" class="navigation__btn completes">Completed</button>
+                        </li>
+                        <li class="navigation__item">
+                            <button value="clear" class="navigation__clear">Clear completed</button>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <ul class="todo__list"></ul>
-            <footer class="footer">
-                <div class="footer__item-left"></div>
-                <ul class="footer__list">
-                    <li class="footer__item">
-                        <button value="all" class="footer__btn active">All</button>
-                    </li>
-                    <li class="footer__item">
-                        <button value="active" class="footer__btn">Active</button>
-                    </li>
-                    <li class="footer__item">
-                        <button value="completes" class="footer__btn">Completed</button>
-                    </li>
-                    <li class="footer__item">
-                        <button value="clear" class="footer__btn">Clear completed</button>
-                    </li>
-                </ul>
-            </footer>
         </div>
+        <footer>  
+            <P>w</P>
+            <P>w</P>
+            <P>w</P>
+        </footer>
     </div>  
     <script src="./script.js"></script>
 </body>

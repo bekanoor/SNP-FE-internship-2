@@ -3,9 +3,11 @@
 //? DOM ELEMENTS
 const todos = document.querySelector('.todos');
 const arrow = document.querySelector('.todo__arrow');
-const footer = document.querySelector('.footer');
+const navigation = document.querySelector('.navigation');
 const todoList  = document.querySelector('.todo__list');
-const itemsLeft = document.querySelector('.footer__item-left');
+const itemsLeft = document.querySelector('.navigation__item-left');
+const completeStatus = document.querySelector('.completes');
+const activeStatus = document.querySelector('.actives');
 
 //? FUNCTIONS
 function createElement(item, completed, toLocal) {
@@ -16,7 +18,8 @@ function createElement(item, completed, toLocal) {
     todoList.append(liItem);
 
     // add text container
-    const itemText = document.createElement('div');
+    const itemText = document.createElement('label');
+    // itemText.setAttribute('contenteditable', true);
     itemText.classList.add('todo__itemText');
     itemText.textContent = item;
     liItem.append(itemText);
@@ -38,6 +41,46 @@ function createElement(item, completed, toLocal) {
     // if the task is completed marks the text 
     if(completed) itemText.classList.add('todo__cross-out');
 
+    // change inner text 
+    itemText.addEventListener('dblclick', ()=> {
+        itemText.setAttribute('contenteditable', true);
+        itemText.classList.add('todo__active');
+    });
+
+    itemText.addEventListener('blur', (e)=> {
+        const todos = getValueFromLS();
+        let nodeId = parseInt(e.target.parentNode.id);
+        
+        for(let elem of todos) {
+            if(elem.id === nodeId) {
+                elem.text = itemText.textContent;
+                console.log(todos);
+            };
+        }
+
+        updateLS(todos);
+        itemText.classList.remove('todo__active');
+        itemText.removeAttribute('contenteditable');
+    });
+
+    itemText.addEventListener('keydown', (e) => {
+        if (e.keyCode === 13) {
+            const todos = getValueFromLS();
+            let nodeId = parseInt(e.target.parentNode.id);
+            
+            for(let elem of todos) {
+                if(elem.id === nodeId) {
+                    elem.text = itemText.textContent;
+                    console.log(todos);
+                };
+            }
+
+            updateLS(todos);
+            itemText.classList.remove('todo__active');
+            itemText.removeAttribute('contenteditable');
+        }
+    })
+
     // delete element
     deleteButton.addEventListener('click', ()=> {
         // update leftover items
@@ -46,8 +89,11 @@ function createElement(item, completed, toLocal) {
         deleteTodoItemFromLocalStorage(liItem.id);
         liItem.remove();
         
-        // hide footer if todo array is empty 
+        // hide navigation and reset active button 
         if(todoList.childNodes.length === 0) {
+            const active = document.querySelector('.active');
+            active.classList.remove();
+
             toggleFooterVisibility('','');
         }
     });
@@ -65,7 +111,7 @@ function createElement(item, completed, toLocal) {
             showItemsLeft('');
         }
 
-        let buttons = document.querySelectorAll(".footer__btn");
+        let buttons = document.querySelectorAll(".navigation__btn");
 
         for (let btn of buttons) {
             // search active button
@@ -88,33 +134,41 @@ function showTodoItem (e) {
     if(e.type === 'keypress') {
         // Make sure enter is pressed and string is not empty 
         if (e.which === 13 || e.keyCode === 13) {
-            if (todos.value.length === 0) return
-            
+            if (removeGaps(todos.value).length === 0) return;
 
-            if(todoList.childNodes.length >= 0) {
-                toggleFooterVisibility('flex', 'inline');
-            }
+            if(todoList.childNodes.length >= 0) toggleFooterVisibility('flex', 'inline');
 
             showItemsLeft('plus');
             createElement(todos.value, '', todos.value);
 
+            // hide task if completed button is active 
+            if(completeStatus.classList.contains('active')) {
+                todoList.lastChild.style.display = 'none';
+            }
+            
             todos.value = '';
         }
     }
 }
 
+// delete gaps in a string 
+function removeGaps(str) {
+    let newStr = str.replace(/\s/g, '');
+    return newStr;
+}
+
 // show how many items are left
 function showItemsLeft(operation) {
     // get value from local storage and increase it 
-    let counterListItems = JSON.parse(localStorage.getItem('count'));
+    let counterListItems = getValueFromLS('count');
     operation === 'plus' ? counterListItems++ : counterListItems--;
-    localStorage.setItem('count', counterListItems)
-    itemsLeft.textContent = `${JSON.parse(localStorage.getItem('count'))} items left`;
+    updateLS(counterListItems, 'count')
+    itemsLeft.textContent = `${getValueFromLS('count')} items left`;
 }
 
-// show/hide footer 
+// show/hide navigation 
 function toggleFooterVisibility(flex, inline) {
-    footer.style.display = flex;
+    navigation.style.display = flex;
     arrow.style.display = inline;
 }
 
@@ -131,38 +185,46 @@ function getBlur () {
 // turn off/on cross out all text 
 function toggleArrow() {
     let countToDo = document.querySelectorAll('.todo__itemText');
-    let arrowActive = JSON.parse(localStorage.getItem('arrowStatus'));
+    let arrowActive = getValueFromLS('arrowStatus');
 
     // check active or not
     if(arrowActive) {
-        
         // for each text item make regular text
         for(let elem of countToDo) {
             showItemsLeft('plus')
             elem.classList.remove('todo__cross-out');
             changeCompleteValue(elem.parentNode.id);
+
+            // show/hide items when active complete/active navigation buttons  
+            if(completeStatus.classList.contains('active')) elem.parentNode.style.display = 'none';
+            
+            if(activeStatus.classList.contains('active')) elem.parentNode.style.display = 'flex';
         }
 
-        localStorage.setItem('arrowStatus', JSON.stringify(false));
+        updateLS(false, 'arrowStatus');
     } else {
         // for each text item make cross out text
         for(let elem of countToDo) {
-            if(elem.classList.contains('todo__cross-out')) {
-                showItemsLeft('plus');
-            } 
+            if(elem.classList.contains('todo__cross-out')) showItemsLeft('plus');
+
             elem.classList.add('todo__cross-out');
             changeCompleteValue(elem.parentNode.id);
+            
             showItemsLeft('');
+
+            // show/hide items when active complete/active navigation buttons  
+            if(activeStatus.classList.contains('active')) elem.parentNode.style.display = 'none';
+
+            if(completeStatus.classList.contains('active')) elem.parentNode.style.display = 'flex';
         }
 
-        localStorage.setItem('arrowStatus', JSON.stringify(true))
+        updateLS(true, 'arrowStatus');
     }
 
 }
 
-// manage footer 
+// manage navigation 
 function manageFooterComponents(e) {
-    console.log(e.target)
     // create for each todo list item a function to control display property 
     todoList.childNodes.forEach(element => {
         switch (e.target.value) {
@@ -191,9 +253,9 @@ function manageFooterComponents(e) {
                 }
                 
                 // turn off arrow 
-                localStorage.setItem('arrowStatus', false);
+                updateLS(false, 'arrowStatus');
 
-                // hide footer 
+                // hide navigation 
                 if(todoList.childNodes.length === 0) {
                     toggleFooterVisibility('','');
                 }
@@ -204,15 +266,15 @@ function manageFooterComponents(e) {
     })
 }
 
-// set green background for footer buttons 
+// set green background for navigation buttons 
 function toggleFooterButton() {
-    const buttons = document.querySelectorAll(".footer__btn");
+    const buttons = document.querySelectorAll(".navigation__btn");
 
     for (let btn of buttons) {
         btn.addEventListener('click', (e) => {
-        console.log('clck');
             // et = event target
             const et = e.target;
+
             // slect active class
             const active = document.querySelector('.active');
 
@@ -220,7 +282,7 @@ function toggleFooterButton() {
             if (active) {
             active.classList.remove('active');
             }
-
+            
             // add active class to the clicked element 
             et.classList.add('active');
         });
@@ -228,6 +290,14 @@ function toggleFooterButton() {
 }
 
 // local storage functions 
+function updateLS(value, key="todoArray"){
+    return localStorage.setItem(key, JSON.stringify(value));
+}
+
+function getValueFromLS(key='todoArray') {
+    return JSON.parse(localStorage.getItem(key));
+}
+
 function saveToLocalStorage(item) {
     let todoArray;
     let obj = {
@@ -241,12 +311,12 @@ function saveToLocalStorage(item) {
         todoArray = [];
     } else {
         // get array frm LS
-        todoArray = JSON.parse(localStorage.getItem('todoArray'));
+        todoArray = getValueFromLS();
     }
 
     // add item to LS
     todoArray.push(obj); 
-    localStorage.setItem('todoArray', JSON.stringify(todoArray));
+    updateLS(todoArray);
 
     // add ID to li item
     for(let i = 0; i < todoList.childNodes.length; i++) {
@@ -255,11 +325,11 @@ function saveToLocalStorage(item) {
 }
 
 function getTodoListFromLocalStorage() {
-    let todoArray = JSON.parse(localStorage.getItem('todoArray'));
+    let todoArray = getValueFromLS();
 
     if(todoArray.length > 0) {
         // update how many items are left
-        itemsLeft.textContent = `${JSON.parse(localStorage.getItem('count'))} items left`;
+        itemsLeft.textContent = `${getValueFromLS('count')} items left`;
     } 
     
     // add items to the screen 
@@ -275,25 +345,25 @@ function getTodoListFromLocalStorage() {
 }
 
 function deleteTodoItemFromLocalStorage(item) {
-    let deleteFromLS = JSON.parse(localStorage.getItem('todoArray'));
+    let deleteFromLS = getValueFromLS();
     let whatRemove = parseInt(item);
 
     for(let i = 0; i < deleteFromLS.length; i++) {
         // find index item to remove 
         if (deleteFromLS[i].id === whatRemove) {
             deleteFromLS.splice(i, 1);
-            localStorage.setItem('todoArray', JSON.stringify(deleteFromLS));
+            updateLS(deleteFromLS);
         }
     }
 }
 
 function changeCompleteValue(id) {
-    let completed = JSON.parse(localStorage.getItem('todoArray'));
+    let completed = getValueFromLS();
 
     completed.forEach(item => {
         if(item.id === parseInt(id)) {
             item.completed = !item.completed;
-            localStorage.setItem('todoArray', JSON.stringify(completed))
+            updateLS(completed);
         }
     })
 }
@@ -302,5 +372,5 @@ document.addEventListener('DOMContentLoaded', getTodoListFromLocalStorage);
 arrow.addEventListener('click', toggleArrow);
 todos.addEventListener('keypress', showTodoItem);
 todos.addEventListener('blur', getBlur);
-footer.addEventListener('click', manageFooterComponents);
-footer.addEventListener('click', toggleFooterButton);
+navigation.addEventListener('click', manageFooterComponents);
+navigation.addEventListener('click', toggleFooterButton);
