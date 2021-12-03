@@ -81,12 +81,9 @@ function createElement(item, completed, toLocal) {
 
     // delete element
     deleteButton.addEventListener('click', ()=> {
-        // update leftover items
-        itemText.classList.contains('todo__cross-out') ? '' : showItemsLeft('');
-
         deleteTodoItemFromLocalStorage(liItem.id);
         liItem.remove();
-        
+        showItemsLeft();
         // hide navigation and reset active button 
         if(todoList.childNodes.length === 0) {
             const active = document.querySelector('.active');
@@ -99,16 +96,15 @@ function createElement(item, completed, toLocal) {
     //make cross out/regular text
     completeButton.addEventListener('click', ()=> {
         changeCompletePropertyInLS(liItem.id);
-
+       
         if(itemText.classList.contains('todo__cross-out')) {
             itemText.classList.remove('todo__cross-out');
-            showItemsLeft('plus');
+            showItemsLeft();
         } else {
             itemText.classList.add('todo__cross-out');
-
-            showItemsLeft('');
+            showItemsLeft();
         }
-
+        
         let buttons = document.querySelectorAll(".navigation__btn");
 
         for (let btn of buttons) {
@@ -136,14 +132,11 @@ function showTodoItem (e) {
 
             if(todoList.childNodes.length >= 0) toggleFooterVisibility('flex', 'inline');
 
-            showItemsLeft('plus');
-            createElement(todos.value, '', todos.value);
-
             // hide task if completed button is active 
-            if(completeStatus.classList.contains('active')) {
-                todoList.lastChild.style.display = 'none';
-            }
-            
+            if(completeStatus.classList.contains('active')) todoList.lastChild.style.display = 'none';
+
+            createElement(todos.value, '', todos.value);
+            showItemsLeft();
             todos.value = '';
         }
     }
@@ -156,12 +149,10 @@ function removeGaps(str) {
 }
 
 // show how many items are left
-function showItemsLeft(operation) {
-    // get value from local storage and increase it 
-    let counterListItems = getValueFromLS('count');
-    operation === 'plus' ? counterListItems++ : counterListItems--;
-    updateLS(counterListItems, 'count')
-    itemsLeft.textContent = `${getValueFromLS('count')} items left`;
+function showItemsLeft() {
+    const show = getValueFromLS().filter(elem => elem.completed === false)
+    
+    itemsLeft.textContent = `${show.length} items left`;
 }
 
 // show/hide navigation 
@@ -175,7 +166,6 @@ function getBlur () {
    
     createElement(todos.value, '', todos.value);
     toggleFooterVisibility('flex', 'inline');
-    showItemsLeft('plus');
 
     todos.value = '';
 }
@@ -184,41 +174,43 @@ function getBlur () {
 function toggleArrow() {
     const countToDo = document.querySelectorAll('.todo__itemText');
     const arrowActive = getValueFromLS('arrowStatus');
+    const todoArr = getValueFromLS();
 
-    // check active or not
     if(arrowActive) {
         // for each text item make regular text
         for (let elem of countToDo) {
-            showItemsLeft('plus')
-            elem.classList.remove('todo__cross-out');
-            changeCompletePropertyInLS(elem.parentNode.id);
+            if(elem.classList.contains('todo__cross-out')) elem.classList.remove('todo__cross-out');
 
             // show/hide items when active complete/active navigation buttons  
-            if(completeStatus.classList.contains('active')) elem.parentNode.style.display = 'none';
-            
             if(activeStatus.classList.contains('active')) elem.parentNode.style.display = 'flex';
+
+            if(completeStatus.classList.contains('active')) elem.parentNode.style.display = 'none';
+
+            todoArr.forEach(e=> e.completed = false);
+
+            updateLS(todoArr);
+            showItemsLeft();
         }
 
         updateLS(false, 'arrowStatus');
     } else {
         // for each text item make cross out text
         for (let elem of countToDo) {
-            if(elem.classList.contains('todo__cross-out')) showItemsLeft('plus');
-
-            elem.classList.add('todo__cross-out');
-            changeCompletePropertyInLS(elem.parentNode.id);
-            
-            showItemsLeft('');
-
             // show/hide items when active complete/active navigation buttons  
             if(activeStatus.classList.contains('active')) elem.parentNode.style.display = 'none';
 
             if(completeStatus.classList.contains('active')) elem.parentNode.style.display = 'flex';
+            
+            if(!elem.classList.contains('todo__cross-out')) elem.classList.add('todo__cross-out');
+
+            todoArr.forEach(e=> e.completed = true);
+
+            updateLS(todoArr);
+            showItemsLeft();
         }
 
         updateLS(true, 'arrowStatus');
     }
-
 }
 
 // manage navigation 
@@ -294,20 +286,13 @@ function getValueFromLS(key='todoArray') {
 }
 
 function saveToLocalStorage(item) {
-    let todoArray;
+    let todoArray = getValueFromLS();
+
     const obj = {
         id: Date.now(),
         text: item, 
         completed: false
     };
-
-    if(localStorage.getItem('todoArray') === null) {
-        // create array if it's not exist 
-        todoArray = [];
-    } else {
-        // get array frm LS
-        todoArray = getValueFromLS();
-    }
 
     // add item to LS
     todoArray.push(obj); 
@@ -323,11 +308,6 @@ function saveToLocalStorage(item) {
 function getTodoListFromLocalStorage() {
     let todoArray = getValueFromLS();
 
-    if(todoArray.length > 0) {
-        // update how many items are left
-        itemsLeft.textContent = `${getValueFromLS('count')} items left`;
-    } 
-    
     // add items to the screen 
     todoArray.forEach(item => {
        createElement(item.text, item.completed);
@@ -344,7 +324,6 @@ function deleteTodoItemFromLocalStorage(item) {
     let deleteFromLS = getValueFromLS();
     let whatRemove = parseInt(item);
 
-
     for (let elem of deleteFromLS) {
         if (elem.id === whatRemove) {
             deleteFromLS.splice(elem, 1);
@@ -359,11 +338,17 @@ function changeCompletePropertyInLS(id) {
     completed.forEach(item => {
         if(item.id === parseInt(id)) {
             item.completed = !item.completed;
-            updateLS(completed);
         }
-    })
-}
+    });
+
+    updateLS(completed);
+};
 //? EVENTS   
+document.addEventListener('DOMContentLoaded', () => {
+    if(localStorage.getItem('todoArray') === null) localStorage.setItem('todoArray', JSON.stringify([]));
+     
+    showItemsLeft();
+});
 document.addEventListener('DOMContentLoaded', getTodoListFromLocalStorage);
 arrow.addEventListener('click', toggleArrow);
 todos.addEventListener('keypress', showTodoItem);
